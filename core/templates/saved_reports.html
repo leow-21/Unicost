@@ -1,0 +1,50 @@
+<!-- html to display a table of saved reports and their info -->
+{% extends "base.html" %}
+{% block title %}Saved reports{% endblock %}
+
+{% block content %}
+<p class="panel-eyebrow">Your reports</p>
+<h1 class="h2 display-serif mb-4">Saved reports</h1>
+
+{% if reports %}
+<div class="panel">
+    <table class="ledger">
+        <thead>
+            <tr>
+                <th>University</th>
+                <th>Course</th>
+                <th>Accommodation</th>
+                <th>Created</th>
+                <th class="text-end">Median weekly cost</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td>{{ report.university.name }}</td>
+                <td>{{ report.course.name|default:"—" }}</td>
+                <td>{{ report.accommodation.name }}</td>
+                <td>{{ report.created_at|date:"d M Y" }}</td>
+                <td class="text-end">
+                    {% if report.simulation_run %}
+                        £{{ report.simulation_run.median_cost_per_week|floatformat:2 }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    <a href="{% url 'report_detail' report.id %}">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="panel text-center py-5">
+    <p class="text-secondary mb-3">You haven't created any reports yet.</p>
+    <a href="{% url 'create_report' %}" class="btn btn-brass">Create your first report</a>
+</div>
+{% endif %}
+{% endblock %}

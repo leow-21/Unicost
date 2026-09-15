@@ -1,0 +1,62 @@
+<!-- html for the home page -->
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="row align-items-center gy-4 py-4">
+    <div class="col-lg-7">
+        <p class="panel-eyebrow">University cost using all factors</p>
+        <h1 class="display-4 display-serif">Why is this tool better than a simple calculator?</h1>
+        <p class="fs-5 text-secondary" style="max-width: 60ch;">
+            At first, just using the tuition fee and rent fee may seem to be an adequate estimate - but costs pile up as a student.
+            This tool is designed to give the most transparent estimate taking into account factors most would gloss over, and help 
+            students be most prepared for their potential spending. As a student myself I wanted to create a tool to help others in my
+            position who may not have been aware of the full costs before living independently, and hope this can do just that.
+        </p>
+        <div class="d-flex gap-3 mt-4 flex-wrap">
+            <a href="{% url 'create_report' %}" class="btn btn-brass">Create your report</a>
+            <a href="{% url 'example_report' %}" class="btn btn-outline-ink">See an example first</a>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="panel">
+            <p class="panel-eyebrow">Rough breakdown of the factors considered</p>
+            <table class="ledger">
+                <tbody>
+                    <tr><td>Tuition</td><td class="text-end">Fixed</td></tr>
+                    <tr><td>Maintenance loan / grants</td><td class="text-end">Varies by area and income</td></tr>
+                    <tr><td>Accommodation</td><td class="text-end">Uses database for specific accomodation</td></tr>
+                    <tr><td>Everyday living</td><td class="text-end">Varies by lifestyle and area</td></tr>
+                    <tr><td>Part-time earnings</td><td class="text-end">Optional</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="row gy-4 py-3">
+    <div class="col-md-4">
+        <p class="panel-eyebrow">Step one</p>
+        <h3 class="h5">Enter your information and preferences</h3>
+        <p class="text-secondary">These will interact with eachother to generate the most likely outcome.</p>
+    </div>
+    <div class="col-md-4">
+        <p class="panel-eyebrow">Step two</p>
+        <h3 class="h5">Thourough simulation</h3>
+        <p class="text-secondary">
+            The key to why this is so much more insightfull that a simple calculator - a Monte Carlo
+            simulation runs thousands of simulations to give all possible outcomes, not just a single figure.
+        </p>
+    </div>
+    <div class="col-md-4">
+        <p class="panel-eyebrow">Step three</p>
+        <h3 class="h5">Get a report that is actually useful</h3>
+        <p class="text-secondary">
+            In depth statistical charts will help to show the probability spread of your potential spending, 
+            making it clear if you want to go through with it, or maybe cut costs somewhere.
+        </p>
+    </div>
+</div>
+{% endblock %}

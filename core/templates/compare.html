@@ -1,0 +1,103 @@
+<!-- html for the comparison tab -->
+{% extends "base.html" %}
+{% block title %}Compare{% endblock %}
+
+{% block content %}
+<p class="panel-eyebrow">Side by side</p>
+<h1 class="h2 display-serif mb-4">Compare two reports</h1>
+
+{% if not reports %}
+<div class="panel text-center py-5">
+    <p class="text-secondary mb-3">You need at least two saved reports to compare.</p>
+    <a href="{% url 'create_report' %}" class="btn btn-brass">Create a report</a>
+</div>
+{% else %}
+<form method="get" action="{% url 'compare' %}" class="mb-4">
+    <div class="row gy-3 align-items-end">
+        <div class="col-md-5 field">
+            <label for="id_report_a">First report</label>
+            <select class="form-select" id="id_report_a" name="report_a">
+                <option value="" disabled {% if not selected_a %}selected{% endif %}>Select a report</option>
+                {% for report in reports %}
+                    <option value="{{ report.id }}" {% if selected_a == report.id|stringformat:"s" %}selected{% endif %}>
+                        {{ report.university.name }} — {{ report.accommodation.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 text-center text-secondary fw-semibold">vs</div>
+        <div class="col-md-5 field">
+            <label for="id_report_b">Second report</label>
+            <select class="form-select" id="id_report_b" name="report_b">
+                <option value="" disabled {% if not selected_b %}selected{% endif %}>Select a report</option>
+                {% for report in reports %}
+                    <option value="{{ report.id }}" {% if selected_b == report.id|stringformat:"s" %}selected{% endif %}>
+                        {{ report.university.name }} — {{ report.accommodation.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-brass mt-3">Compare</button>
+</form>
+
+{% if comparison %}
+<div class="panel">
+    <table class="ledger">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th class="text-end">{{ comparison.a.label }}</th>
+                <th class="text-end">{{ comparison.b.label }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>University</td>
+                <td class="text-end">{{ comparison.a.university }}</td>
+                <td class="text-end">{{ comparison.b.university }}</td>
+            </tr>
+            <tr>
+                <td>Course</td>
+                <td class="text-end">{{ comparison.a.course }}</td>
+                <td class="text-end">{{ comparison.b.course }}</td>
+            </tr>
+            <tr>
+                <td>Accommodation</td>
+                <td class="text-end">{{ comparison.a.accommodation }}</td>
+                <td class="text-end">{{ comparison.b.accommodation }}</td>
+            </tr>
+            <tr>
+                <td>Rent (per week)</td>
+                <td class="text-end">£{{ comparison.a.rent|floatformat:2 }}</td>
+                <td class="text-end">£{{ comparison.b.rent|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td>Median weekly cost (excl. tuition)</td>
+                <td class="text-end">£{{ comparison.a.median_cost|floatformat:2 }}</td>
+                <td class="text-end">£{{ comparison.b.median_cost|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td>Estimated weekly income</td>
+                <td class="text-end">£{{ comparison.a.weekly_income|floatformat:2 }}</td>
+                <td class="text-end">£{{ comparison.b.weekly_income|floatformat:2 }}</td>
+            </tr>
+            <tr class="fw-semibold">
+                <td>Net weekly position</td>
+                <td class="text-end {% if comparison.a.net < 0 %}text-danger{% else %}text-success{% endif %}">
+                    £{{ comparison.a.net|floatformat:2 }}
+                </td>
+                <td class="text-end {% if comparison.b.net < 0 %}text-danger{% else %}text-success{% endif %}">
+                    £{{ comparison.b.net|floatformat:2 }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% elif selected_a or selected_b %}
+<div class="panel text-center py-5">
+    <p class="text-secondary">Select two reports to compare.</p>
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

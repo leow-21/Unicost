@@ -1,0 +1,220 @@
+/* stylesheet for the entire website */
+:root {
+  --ink: #1B2A4A;
+  --ink-dark: #101B30;
+  --paper: #F7F5EF;
+  --panel: #FFFFFF;
+  --brass: #A9822E;
+  --brass-light: #C9A860;
+  --slate: #4B5563;
+  --slate-light: #8A93A3;
+  --hairline: #D9D4C7;
+  --green: #2F6F4E;
+  --clay: #B0473E;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, .display-serif {
+  font-family: 'Fraunces', Georgia, serif;
+  color: var(--ink);
+}
+
+a { color: var(--brass); }
+a:hover { color: var(--brass-light); }
+
+.site-header { background: var(--ink-dark); }
+
+.brand-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: #fff;
+}
+.brand:hover { color: #fff; }
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--brass);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+}
+.brand-text small {
+  color: #C7CEDB;
+  font-size: 0.68rem;
+  font-weight: 400;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.account-row { display: flex; align-items: center; }
+.account-row a,
+.account-row span {
+  color: #C7CEDB;
+  font-size: 0.85rem;
+  margin-left: 1.1rem;
+  text-decoration: none;
+}
+.account-row a:hover { color: #fff; }
+
+.tab-row {
+  background: var(--ink-dark);
+  padding: 0 1.25rem;
+  overflow-x: auto;
+}
+.tab-row ul {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  gap: 0.2rem;
+  min-width: max-content;
+}
+.tab-row li a {
+  display: inline-block;
+  padding: 0.65rem 1.35rem;
+  margin-top: 0.55rem;
+  background: #E7E2D3;
+  color: var(--slate);
+  font-weight: 500;
+  font-size: 0.92rem;
+  text-decoration: none;
+  clip-path: polygon(8% 0, 92% 0, 100% 100%, 0% 100%);
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.tab-row li a:hover { background: #F1ECDD; color: var(--ink); }
+.tab-row li.active a {
+  background: var(--panel);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+main.content-panel {
+  background: var(--paper);
+  border-bottom: 1px solid var(--hairline);
+  min-height: 65vh;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  padding: 1.75rem;
+}
+.panel + .panel { margin-top: 1.25rem; }
+
+.panel-eyebrow {
+  color: var(--brass);
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-bottom: 0.35rem;
+}
+
+.field label {
+  font-size: 0.82rem;
+  color: var(--slate);
+  margin-bottom: 0.3rem;
+  display: block;
+}
+.field .form-control,
+.field .form-select {
+  border-radius: 0;
+  border: 1px solid var(--hairline);
+}
+.field .form-control:focus,
+.field .form-select:focus {
+  border-color: var(--brass);
+  box-shadow: 0 0 0 0.15rem rgba(169, 130, 46, 0.25);
+}
+
+.btn-brass {
+  background: var(--brass);
+  border: none;
+  color: #fff;
+  padding: 0.6rem 1.6rem;
+  font-weight: 600;
+  border-radius: 0;
+}
+.btn-brass:hover { background: var(--brass-light); color: var(--ink-dark); }
+
+.btn-outline-ink {
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  background: transparent;
+  padding: 0.6rem 1.6rem;
+  border-radius: 0;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-outline-ink:hover { background: var(--ink); color: #fff; }
+
+.stat-figure {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 1.9rem;
+  line-height: 1.1;
+}
+.stat-figure.positive { color: var(--green); }
+.stat-figure.negative { color: var(--clay); }
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--slate);
+  margin-top: 0.2rem;
+}
+
+table.ledger { width: 100%; border-collapse: collapse; }
+table.ledger th {
+  text-align: left;
+  font-size: 0.75rem;
+  color: var(--slate);
+  border-bottom: 1px solid var(--hairline);
+  padding: 0.55rem 0.25rem;
+  font-weight: 600;
+}
+table.ledger td {
+  padding: 0.65rem 0.25rem;
+  border-bottom: 1px solid var(--hairline);
+  font-variant-numeric: tabular-nums;
+}
+table.ledger tr:last-child td { border-bottom: none; }
+
+.divider { border-top: 1px solid var(--hairline); margin: 1.5rem 0; }
+
+footer {
+  padding: 1.25rem 1.75rem;
+  font-size: 0.8rem;
+  color: var(--slate-light);
+}

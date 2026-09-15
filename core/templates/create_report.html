@@ -1,0 +1,471 @@
+<!-- html and javascript for the create report tab -->
+{% extends "base.html" %}
+{% block title %}Create report{% endblock %}
+{% block content %}
+<p class="panel-eyebrow">New report</p>
+<h1 class="h2 display-serif mb-4">Enter your information</h1>
+
+<form method="post" action="{% url 'create_report' %}">
+    {% csrf_token %}
+
+    <div class="panel">
+        <h2 class="h5 mb-3">University, course &amp; accommodation</h2>
+        <div class="row">
+            <div class="col-md-4 field mb-3">
+                <label for="id_university">University</label>
+                <select class="form-select" id="id_university" name="university" required
+                        data-selected="{{ submitted.university|default:'' }}">
+                    <option value="" {% if not submitted.university %}selected{% endif %} disabled>Select a university</option>
+                    {% for uni in universities %}
+                        <option value="{{ uni.id }}">{{ uni.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 field mb-3">
+                <label for="id_course">Course</label>
+                <select class="form-select" id="id_course" name="course" disabled required
+                        data-selected="{{ submitted.course|default:'' }}">
+                    <option value="" selected disabled>Select a university first</option>
+                </select>
+            </div>
+            <div class="col-md-4 field mb-3">
+                <label for="id_accommodation">Accommodation</label>
+                <select class="form-select" id="id_accommodation" name="accommodation" disabled required
+                        data-selected="{{ submitted.accommodation|default:'' }}">
+                    <option value="" selected disabled>Select a university first</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 field mb-3">
+                <label for="id_catering">Catering</label>
+                <select class="form-select" id="id_catering" name="catering" disabled required
+                        data-selected="{{ submitted.catering|default:'' }}">
+                    <option value="" selected disabled>Select accommodation first</option>
+                </select>
+            </div>
+            <div class="col-md-6 field mb-3">
+                <label for="id_bathroom">Bathroom</label>
+                <select class="form-select" id="id_bathroom" name="bathroom" disabled required
+                        data-selected="{{ submitted.bathroom|default:'' }}">
+                    <option value="" selected disabled>Select accommodation first</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2 class="h5 mb-3">Lifestyle</h2>
+        <div class="row">
+            <div class="col-md-3 field mb-3">
+                <label for="id_gym_membership">Gym membership</label>
+                <select class="form-select" id="id_gym_membership" name="gym_membership" required>
+                    <option value="" {% if not submitted.gym_membership %}selected{% endif %} disabled>Select an option</option>
+                    <option value="yes" {% if submitted.gym_membership == 'yes' %}selected{% endif %}>Yes</option>
+                    <option value="no" {% if submitted.gym_membership == 'no' %}selected{% endif %}>No</option>
+                </select>
+            </div>
+            <div class="col-md-3 field mb-3">
+                <label for="id_walking_distance">Max walking distance to gym/shop</label>
+                <select class="form-select" id="id_walking_distance" name="walking_distance" required>
+                    <option value="" {% if not submitted.walking_distance %}selected{% endif %} disabled>Select a distance</option>
+                    <option value="under_10" {% if submitted.walking_distance == 'under_10' %}selected{% endif %}>Under 10 minutes</option>
+                    <option value="under_20" {% if submitted.walking_distance == 'under_20' %}selected{% endif %}>Under 20 minutes</option>
+                    <option value="under_30" {% if submitted.walking_distance == 'under_30' %}selected{% endif %}>Under 30 minutes</option>
+                    <option value="under_40" {% if submitted.walking_distance == 'under_40' %}selected{% endif %}>Under 40 minutes</option>
+                </select>
+            </div>
+            <div class="col-md-3 field mb-3">
+                <label for="id_nights_out">Nights out per week (average)</label>
+                <select class="form-select" id="id_nights_out" name="nights_out_per_week" required>
+                    <option value="" {% if not submitted.nights_out_per_week %}selected{% endif %} disabled>Select a number</option>
+                    {% for n in "01234567" %}
+                        <option value="{{ n }}" {% if submitted.nights_out_per_week == n %}selected{% endif %}>{{ n }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 field mb-3">
+                <label for="id_night_out_budget">Budget per night out</label>
+                <select class="form-select" id="id_night_out_budget" name="night_out_budget" required>
+                    <option value="" {% if not submitted.night_out_budget %}selected{% endif %} disabled>Select a budget</option>
+                    <option value="under_10" {% if submitted.night_out_budget == 'under_10' %}selected{% endif %}>Less than £10</option>
+                    <option value="10_30" {% if submitted.night_out_budget == '10_30' %}selected{% endif %}>£10 – £30</option>
+                    <option value="30_50" {% if submitted.night_out_budget == '30_50' %}selected{% endif %}>£30 – £50</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 field mb-3">
+                <label for="id_other_subscriptions">Other subscriptions (£/month total)</label>
+                <input type="number" min="0" step="0.5" class="form-control" id="id_other_subscriptions" name="other_subscriptions_amount" value="{{ submitted.other_subscriptions_amount|default:'0' }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2 class="h5 mb-3">Finances</h2>
+        <div class="row">
+            <div class="col-md-4 field mb-3">
+                <label for="id_household_income">Household income (£/year)</label>
+                <input type="number" min="0" step="500" class="form-control" id="id_household_income" name="household_income" value="{{ submitted.household_income|default:'' }}" required>
+            </div>
+            <div class="col-md-4 field mb-3">
+                <label for="id_living_situation">Living situation (for loan purposes)</label>
+                <select class="form-select" id="id_living_situation" name="living_situation" required>
+                    <option value="" {% if not submitted.living_situation %}selected{% endif %} disabled>Select your living situation</option>
+                    <option value="at_home" {% if submitted.living_situation == 'at_home' %}selected{% endif %}>Living with parents/guardians</option>
+                    <option value="away_outside_london" {% if submitted.living_situation == 'away_outside_london' %}selected{% endif %}>Away from home, outside London</option>
+                    <option value="away_in_london" {% if submitted.living_situation == 'away_in_london' %}selected{% endif %}>Away from home, in London</option>
+                </select>
+            </div>
+            <div class="col-md-4 field mb-3">
+                <label for="id_year_of_study">Year of study</label>
+                <select class="form-select" id="id_year_of_study" name="year_of_study" required>
+                    <option value="" {% if not submitted.year_of_study %}selected{% endif %} disabled>Select your year</option>
+                    <option value="first_or_middle" {% if submitted.year_of_study == 'first_or_middle' %}selected{% endif %}>First or middle year</option>
+                    <option value="final" {% if submitted.year_of_study == 'final' %}selected{% endif %}>Final year</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 field mb-3">
+                <label for="id_savings">Savings available for the year(£)</label>
+                <input type="number" min="0" step="100" class="form-control" id="id_savings" name="savings" value="{{ submitted.savings|default:'' }}" required>
+            </div>
+            <div class="col-md-4 field mb-3">
+                <label for="id_spend_savings">Would you like to use your savings as weekly income supplementation during uni term time?</label>
+                <select class="form-select" id="id_spend_savings" name="spend_savings" required>
+                    <option value="" {% if not submitted.spend_savings %}selected{% endif %} disabled>Select an option</option>
+                    <option value="yes" {% if submitted.spend_savings == 'yes' %}selected{% endif %}>Yes</option>
+                    <option value="no" {% if submitted.spend_savings == 'no' %}selected{% endif %}>No</option>
+                </select>
+            </div>
+            <div class="col-md-4 field mb-3">
+                <label for="id_loan_spread">Spend maintenance loan only during term time, or year round?</label>
+                <select class="form-select" id="id_loan_spread" name="loan_spread" required>
+                    <option value="" {% if not submitted.loan_spread %}selected{% endif %} disabled>Select an option</option>
+                    <option value="term_time" {% if submitted.loan_spread == 'term_time' %}selected{% endif %}>Term time only (32 weeks)</option>
+                    <option value="year_round" {% if submitted.loan_spread == 'year_round' %}selected{% endif %}>Year round (52 weeks)</option>
+                </select>
+            </div>
+            <div class="col-md-4 field mb-3">
+                <label for="id_part_time_hours">Expected part-time work (hrs/week)</label>
+                <input type="number" min="0" max="35" step="1" class="form-control" id="id_part_time_hours" name="part_time_hours" value="{{ submitted.part_time_hours|default:'0' }}">
+            </div>
+            <div class="col-md-4 field mb-3">
+                <label for="id_scholarship">Scholarships or bursaries you're expecting (£/year, if any)</label>
+                <input type="number" min="0" step="100" class="form-control" id="id_scholarship" name="scholarship_amount" value="{{ submitted.scholarship_amount|default:'0' }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-3 mt-2">
+        <button type="submit" class="btn btn-brass">Run the simulation</button>
+        <a href="{% url 'example_report' %}" class="btn btn-outline-ink">Preview an example instead</a>
+    </div>
+    <div class="simulation-note mt-3">
+        <strong>IMPORTANT NOTES—</strong>The tuition fee of £9790 per year is not included anywhere, as it is not
+        actually paid until after a student has completed university and therefore is not a cost during university.
+    </div>
+</form>
+
+{% if simulation %}
+<div class="row justify-content-center mb-4">
+    <div class="col-lg-10">
+        <div class="panel">
+            <p class="panel-eyebrow">{{ report.accommodation.name }} — {{ simulation.trials }} trials</p>
+            <h2 class="h5 mb-3">Weekly cost distribution vs. estimated income</h2>
+
+            <div class="row gy-3 mb-3">
+                <div class="col-md-6">
+                    <div class="panel text-center">
+                        <div class="stat-figure negative">£{{ simulation.median_cost_per_week|floatformat:2 }}</div>
+                        <div class="stat-label">Median weekly cost (excluding tuition)</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel text-center">
+                        <div class="stat-figure positive">£{{ simulation.weekly_income|floatformat:2 }}</div>
+                        <div class="stat-label">Estimated weekly income (loan + work + scholarship)</div>
+                    </div>
+                </div>
+            </div>
+
+            <canvas id="cost-chart" height="110"></canvas>
+        </div>
+    </div>
+</div>
+{{ simulation.weekly_cost_results|json_script:"cost-results-data" }}
+{% endif %}
+
+{{ accommodations_by_university|json_script:"accommodations-data" }}
+{{ courses_by_university|json_script:"courses-data" }}
+{% endblock %}
+
+{% block scripts %}
+<script>
+// handles the dropdown menus
+// picking a uni filters the accommodation dropdown to show the appropriate ones
+// picking an accommodation then filters the catering and bathroom dropdowns to the correct options via the SQLite database
+document.addEventListener('DOMContentLoaded', function () {
+    const accommodationsData = JSON.parse(document.getElementById('accommodations-data').textContent);
+    const coursesData = JSON.parse(document.getElementById('courses-data').textContent);
+    const universitySelect = document.getElementById('id_university');
+    const accommodationSelect = document.getElementById('id_accommodation');
+    const courseSelect = document.getElementById('id_course');
+    const cateringSelect = document.getElementById('id_catering');
+    const bathroomSelect = document.getElementById('id_bathroom');
+
+    const CATERING_LABELS = { catered: 'Catered', self_catered: 'Self-catered' };
+    const BATHROOM_LABELS = { en_suite: 'En-suite', shared: 'Shared bathroom' };
+
+    // rebuilds a dropdowns options from a list of items
+    function populateSelect(select, items, placeholderText, toOption, selectedValue) {
+        select.innerHTML = '';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.disabled = true;
+        placeholder.selected = !selectedValue;
+        placeholder.textContent = placeholderText;
+        select.appendChild(placeholder);
+
+        items.forEach(function (item) {
+            const opt = document.createElement('option');
+            const { value, label } = toOption(item);
+            opt.value = value;
+            opt.textContent = label;
+            if (selectedValue && String(value) === String(selectedValue)) {
+                opt.selected = true;
+            }
+            select.appendChild(opt);
+        });
+
+        select.disabled = items.length === 0;
+    }
+
+    // resets the catering and bathroom when accommodation changes
+    function resetDependentFields(placeholderText) {
+        populateSelect(cateringSelect, [], placeholderText, () => ({}));
+        populateSelect(bathroomSelect, [], placeholderText, () => ({}));
+    }
+
+    // refils the accommodation list when a different uni is selected
+    function onUniversityChange(universityId, selectedCourseId, selectedAccommodationId) {
+        if (!universityId) {
+            populateSelect(accommodationSelect, [], 'Select a university first', () => ({}));
+            populateSelect(courseSelect, [], 'Select a university first', () => ({}));
+            resetDependentFields('Select accommodation first');
+            return;
+        }
+
+        populateSelect(
+            accommodationSelect,
+            accommodationsData[universityId] || [],
+            'Select accommodation',
+            (acc) => ({ value: acc.id, label: acc.name }),
+            selectedAccommodationId
+        );
+        populateSelect(
+            courseSelect,
+            coursesData[universityId] || [],
+            'Select a course',
+            (course) => ({ value: course.id, label: course.name }),
+            selectedCourseId
+        );
+        resetDependentFields('Select accommodation first');
+    }
+
+    // refills the catering and bathroom based on the data in the SQLite database when an accommodation is selected
+    function onAccommodationChange(universityId, accommodationId, selectedCatering, selectedBathroom) {
+        const accommodations = accommodationsData[universityId] || [];
+        const selected = accommodations.find((acc) => String(acc.id) === String(accommodationId));
+
+        if (!selected) {
+            resetDependentFields('Select accommodation first');
+            return;
+        }
+
+        const cateringOptions = selected.catering || [];
+        populateSelect(
+            cateringSelect,
+            cateringOptions,
+            cateringOptions.length ? 'Select catering' : 'Not specified for this hall',
+            (type) => ({ value: type, label: CATERING_LABELS[type] }),
+            selectedCatering
+        );
+        if (!selectedCatering && cateringOptions.length === 1) cateringSelect.value = cateringOptions[0];
+
+        const bathroomOptions = selected.bathroom || [];
+        populateSelect(
+            bathroomSelect,
+            bathroomOptions,
+            bathroomOptions.length ? 'Select bathroom type' : 'Not specified for this hall',
+            (type) => ({ value: type, label: BATHROOM_LABELS[type] }),
+            selectedBathroom
+        );
+        if (!selectedBathroom && bathroomOptions.length === 1) bathroomSelect.value = bathroomOptions[0];
+    }
+
+    universitySelect.addEventListener('change', function () {
+        onUniversityChange(this.value);
+    });
+
+    accommodationSelect.addEventListener('change', function () {
+        onAccommodationChange(universitySelect.value, this.value);
+    });
+
+    // refills the selected dropdown inputs everytime the page is refreshed
+    const initialUniversity = universitySelect.dataset.selected;
+    const initialCourse = courseSelect.dataset.selected;
+    const initialAccommodation = accommodationSelect.dataset.selected;
+    const initialCatering = cateringSelect.dataset.selected;
+    const initialBathroom = bathroomSelect.dataset.selected;
+
+    if (initialUniversity) {
+        universitySelect.value = initialUniversity;
+        onUniversityChange(initialUniversity, initialCourse, initialAccommodation);
+        if (initialAccommodation) {
+            onAccommodationChange(initialUniversity, initialAccommodation, initialCatering, initialBathroom);
+        }
+    } else {
+        onUniversityChange(universitySelect.value);
+    }
+});
+</script>
+
+{% if simulation %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const costResults = JSON.parse(document.getElementById('cost-results-data').textContent);
+    const weeklyIncome = {{ simulation.weekly_income }};
+
+    // mean and standard deviation functions to help fit the bell curve around the chart
+    function mean(values) {
+        return values.reduce((a, b) => a + b, 0) / values.length;
+    }
+    function stdev(values, avg) {
+        const variance = values.reduce((sum, v) => sum + (v - avg) ** 2, 0) / (values.length - 1);
+        return Math.sqrt(variance);
+    }
+    // finds the height of the curve at each point
+    function normalPdf(x, mu, sigma) {
+        if (sigma === 0) return 0;
+        const coeff = 1 / (sigma * Math.sqrt(2 * Math.PI));
+        return coeff * Math.exp(-0.5 * ((x - mu) / sigma) ** 2);
+    }
+
+    // result is represented by 30 bins
+    const binCount = 30;
+    const rawMin = Math.min(...costResults, weeklyIncome);
+    const rawMax = Math.max(...costResults, weeklyIncome);
+    const range = rawMax - rawMin || 1;
+    const padding = range * 0.1;
+    const min = rawMin - padding;
+    const max = rawMax + padding;
+    const binWidth = (max - min) / binCount || 1;
+
+    const bins = new Array(binCount).fill(0);
+    costResults.forEach(function (value) {
+        let index = Math.floor((value - min) / binWidth);
+        if (index >= binCount) index = binCount - 1;
+        if (index < 0) index = 0;
+        bins[index] += 1;
+    });
+
+    const binCentres = bins.map((_, i) => min + (i + 0.5) * binWidth);
+    const labels = binCentres.map((v) => '£' + v.toFixed(0));
+
+    // uses the results to fit a normal curve on the chart
+    const avg = mean(costResults);
+    const sd = stdev(costResults, avg);
+    const fitLine = binCentres.map((x) => normalPdf(x, avg, sd) * costResults.length * binWidth);
+
+    // finds the median income and costs
+    let incomeIndex = (weeklyIncome - min) / binWidth - 0.5;
+    if (incomeIndex < 0) incomeIndex = 0;
+    if (incomeIndex > binCount - 1) incomeIndex = binCount - 1;
+
+    const medianCost = {{ simulation.median_cost_per_week }};
+    let medianIndex = (medianCost - min) / binWidth - 0.5;
+    if (medianIndex < 0) medianIndex = 0;
+    if (medianIndex > binCount - 1) medianIndex = binCount - 1;
+
+    // builds the chart with dotted lines for the medians and correct labelling
+    new Chart(document.getElementById('cost-chart'), {
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Weekly cost (trials)',
+                    data: bins,
+                    backgroundColor: '#B0473E',
+                    borderWidth: 0,
+                    order: 2,
+                },
+                {
+                    type: 'line',
+                    label: 'Fitted normal curve',
+                    data: fitLine,
+                    borderColor: '#7A2F27',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.35,
+                    order: 1,
+                },
+            ],
+        },
+        options: {
+            plugins: {
+                legend: { display: true, position: 'bottom' },
+                annotation: {
+                    annotations: {
+                        incomeLine: {
+                            type: 'line',
+                            xMin: incomeIndex,
+                            xMax: incomeIndex,
+                            borderColor: '#2F6F4E',
+                            borderWidth: 2,
+                            borderDash: [6, 4],
+                            label: {
+                                display: true,
+                                content: 'Weekly income: £' + weeklyIncome.toFixed(2),
+                                position: 'start',
+                                backgroundColor: '#2F6F4E',
+                                color: '#fff',
+                                font: { size: 11 },
+                            },
+                        },
+                        medianLine: {
+                            type: 'line',
+                            xMin: medianIndex,
+                            xMax: medianIndex,
+                            borderColor: '#B0473E',
+                            borderWidth: 2,
+                            borderDash: [6, 4],
+                            label: {
+                                display: true,
+                                content: 'Median cost: £' + medianCost.toFixed(2),
+                                position: 'end',
+                                backgroundColor: '#B0473E',
+                                color: '#fff',
+                                font: { size: 11 },
+                            },
+                        },
+                    },
+                },
+            },
+            scales: {
+                x: { title: { display: true, text: 'Weekly amount' }, ticks: { maxTicksLimit: 10 } },
+                y: { title: { display: true, text: 'Number of trials' } },
+            },
+        },
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

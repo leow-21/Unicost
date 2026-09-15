@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Account{% endblock %}
+
+{% block content %}
+<p class="panel-eyebrow">Your account</p>
+<h1 class="h2 display-serif mb-4">Account information</h1>
+
+<div class="row gy-3">
+    <!-- updates username and email -->
+    <div class="col-lg-6">
+        <div class="panel">
+            <h2 class="h5 mb-3">Profile</h2>
+            <form method="post" action="{% url 'user_info' %}">
+                {% csrf_token %}
+                <div class="field mb-3">
+                    <label for="id_username">Username</label>
+                    <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}">
+                </div>
+                <div class="field mb-3">
+                    <label for="id_email">Email</label>
+                    <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}">
+                </div>
+                <button type="submit" class="btn btn-brass">Save changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- password change form -->
+    <div class="col-lg-6">
+        <div class="panel">
+            <h2 class="h5 mb-3 text-danger">Change password</h2>
+            <form method="post" action="{% url 'password_change' %}">
+                {% csrf_token %}
+                <div class="field mb-3">
+                    <label for="id_old_password">Current password</label>
+                    <input type="password" class="form-control" id="id_old_password" name="old_password" required>
+                </div>
+                <div class="field mb-3">
+                    <label for="id_new_password1">New password</label>
+                    <input type="password" class="form-control" id="id_new_password1" name="new_password1" required>
+                </div>
+                <div class="field mb-3">
+                    <label for="id_new_password2">Confirm new password</label>
+                    <input type="password" class="form-control" id="id_new_password2" name="new_password2" required>
+                </div>
+                <button type="submit" class="btn btn-outline-ink">Update password</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

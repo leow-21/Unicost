@@ -1,0 +1,260 @@
+<!-- example report using my own inputs -->
+{% extends "base.html" %}
+{% block title %}Example report{% endblock %}
+
+{% block content %}
+{% if simulation %}
+<p class="panel-eyebrow">{{ report.university.name }}{% if report.course %} — {{ report.course.name }}{% endif %}</p>
+<h1 class="h2 display-serif mb-4">Example report — {{ report.accommodation.name }}</h1>
+
+<div class="panel mb-4">
+    <p class="panel-eyebrow">What was entered</p>
+    <table class="ledger">
+        <tbody>
+            <tr>
+                <td>University</td>
+                <td class="text-end">{{ report.university.name }}</td>
+            </tr>
+            {% if report.course %}
+            <tr>
+                <td>Course</td>
+                <td class="text-end">{{ report.course.name }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td>Accommodation</td>
+                <td class="text-end">{{ report.accommodation.name }}</td>
+            </tr>
+            <tr>
+                <td>Catering</td>
+                <td class="text-end">{{ report.get_catering_display|default:report.catering }}</td>
+            </tr>
+            <tr>
+                <td>Bathroom</td>
+                <td class="text-end">{{ report.get_bathroom_display|default:report.bathroom }}</td>
+            </tr>
+            <tr>
+                <td>Gym membership</td>
+                <td class="text-end">{{ report.gym_membership|yesno:"Yes,No" }}</td>
+            </tr>
+            <tr>
+                <td>Max walking distance</td>
+                <td class="text-end">{{ report.walking_distance }}</td>
+            </tr>
+            <tr>
+                <td>Nights out per week</td>
+                <td class="text-end">{{ report.nights_out_per_week }}</td>
+            </tr>
+            <tr>
+                <td>Budget per night out</td>
+                <td class="text-end">{{ report.night_out_budget }}</td>
+            </tr>
+            <tr>
+                <td>Other subscriptions (£/month)</td>
+                <td class="text-end">£{{ report.other_subscriptions_amount }}</td>
+            </tr>
+            <tr>
+                <td>Household income (£/year)</td>
+                <td class="text-end">£{{ report.household_income }}</td>
+            </tr>
+            <tr>
+                <td>Living situation</td>
+                <td class="text-end">{{ report.living_situation }}</td>
+            </tr>
+            <tr>
+                <td>Year of study</td>
+                <td class="text-end">{{ report.year_of_study }}</td>
+            </tr>
+            <tr>
+                <td>Savings</td>
+                <td class="text-end">£{{ report.savings }}</td>
+            </tr>
+            <tr>
+                <td>Savings used during term</td>
+                <td class="text-end">{{ report.spend_savings }}</td>
+            </tr>
+            <tr>
+                <td>Loan spread</td>
+                <td class="text-end">{{ report.loan_spread }}</td>
+            </tr>
+            <tr>
+                <td>Expected part-time work (hrs/week)</td>
+                <td class="text-end">{{ report.part_time_hours }}</td>
+            </tr>
+            <tr>
+                <td>Scholarships/bursaries (£/year)</td>
+                <td class="text-end">£{{ report.scholarship_amount }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="row justify-content-center mb-4">
+    <div class="col-lg-10">
+        <div class="panel">
+            <p class="panel-eyebrow">{{ simulation.trials }} trials</p>
+            <h2 class="h5 mb-3">Weekly cost distribution vs. estimated income</h2>
+
+            <div class="row gy-3 mb-3">
+                <div class="col-md-6">
+                    <div class="panel text-center">
+                        <div class="stat-figure negative">£{{ simulation.median_cost_per_week|floatformat:2 }}</div>
+                        <div class="stat-label">Median weekly cost (excl. tuition)</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel text-center">
+                        <div class="stat-figure positive">£{{ simulation.weekly_income|floatformat:2 }}</div>
+                        <div class="stat-label">Estimated weekly income (loan + work + scholarship)</div>
+                    </div>
+                </div>
+            </div>
+
+            <canvas id="cost-chart" height="110"></canvas>
+        </div>
+    </div>
+</div>
+{{ simulation.weekly_cost_results|json_script:"cost-results-data" }}
+
+<div class="d-flex gap-3">
+    <a href="{% url 'create_report' %}" class="btn btn-brass">Create your own report</a>
+    <a href="{% url 'compare' %}" class="btn btn-outline-ink">Compare universities</a>
+</div>
+{% else %}
+<div class="panel text-center py-5">
+    <p class="text-secondary mb-3">No example report is set up yet.</p>
+    <a href="{% url 'create_report' %}" class="btn btn-brass">Create your own report</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if simulation %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const costResults = JSON.parse(document.getElementById('cost-results-data').textContent);
+    const weeklyIncome = {{ simulation.weekly_income }};
+
+    function mean(values) {
+        return values.reduce((a, b) => a + b, 0) / values.length;
+    }
+    function stdev(values, avg) {
+        const variance = values.reduce((sum, v) => sum + (v - avg) ** 2, 0) / (values.length - 1);
+        return Math.sqrt(variance);
+    }
+    function normalPdf(x, mu, sigma) {
+        if (sigma === 0) return 0;
+        const coeff = 1 / (sigma * Math.sqrt(2 * Math.PI));
+        return coeff * Math.exp(-0.5 * ((x - mu) / sigma) ** 2);
+    }
+
+    const binCount = 30;
+    const rawMin = Math.min(...costResults, weeklyIncome);
+    const rawMax = Math.max(...costResults, weeklyIncome);
+    const range = rawMax - rawMin || 1;
+    const padding = range * 0.1;
+    const min = rawMin - padding;
+    const max = rawMax + padding;
+    const binWidth = (max - min) / binCount || 1;
+
+    const bins = new Array(binCount).fill(0);
+    costResults.forEach(function (value) {
+        let index = Math.floor((value - min) / binWidth);
+        if (index >= binCount) index = binCount - 1;
+        if (index < 0) index = 0;
+        bins[index] += 1;
+    });
+
+    const binCentres = bins.map((_, i) => min + (i + 0.5) * binWidth);
+    const labels = binCentres.map((v) => '£' + v.toFixed(0));
+
+    const avg = mean(costResults);
+    const sd = stdev(costResults, avg);
+    const fitLine = binCentres.map((x) => normalPdf(x, avg, sd) * costResults.length * binWidth);
+
+    let incomeIndex = (weeklyIncome - min) / binWidth - 0.5;
+    if (incomeIndex < 0) incomeIndex = 0;
+    if (incomeIndex > binCount - 1) incomeIndex = binCount - 1;
+
+    const medianCost = {{ simulation.median_cost_per_week }};
+    let medianIndex = (medianCost - min) / binWidth - 0.5;
+    if (medianIndex < 0) medianIndex = 0;
+    if (medianIndex > binCount - 1) medianIndex = binCount - 1;
+
+    new Chart(document.getElementById('cost-chart'), {
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Weekly cost (trials)',
+                    data: bins,
+                    backgroundColor: '#B0473E',
+                    borderWidth: 0,
+                    order: 2,
+                },
+                {
+                    type: 'line',
+                    label: 'Fitted normal curve',
+                    data: fitLine,
+                    borderColor: '#7A2F27',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.35,
+                    order: 1,
+                },
+            ],
+        },
+        options: {
+            plugins: {
+                legend: { display: true, position: 'bottom' },
+                annotation: {
+                    annotations: {
+                        incomeLine: {
+                            type: 'line',
+                            xMin: incomeIndex,
+                            xMax: incomeIndex,
+                            borderColor: '#2F6F4E',
+                            borderWidth: 2,
+                            borderDash: [6, 4],
+                            label: {
+                                display: true,
+                                content: 'Weekly income: £' + weeklyIncome.toFixed(2),
+                                position: 'start',
+                                backgroundColor: '#2F6F4E',
+                                color: '#fff',
+                                font: { size: 11 },
+                            },
+                        },
+                        medianLine: {
+                            type: 'line',
+                            xMin: medianIndex,
+                            xMax: medianIndex,
+                            borderColor: '#B0473E',
+                            borderWidth: 2,
+                            borderDash: [6, 4],
+                            label: {
+                                display: true,
+                                content: 'Median cost: £' + medianCost.toFixed(2),
+                                position: 'end',
+                                backgroundColor: '#B0473E',
+                                color: '#fff',
+                                font: { size: 11 },
+                            },
+                        },
+                    },
+                },
+            },
+            scales: {
+                x: { title: { display: true, text: 'Weekly amount' }, ticks: { maxTicksLimit: 10 } },
+                y: { title: { display: true, text: 'Number of trials' } },
+            },
+        },
+    });
+});
+</script>
+{% endif %}
+{% endblock %}
